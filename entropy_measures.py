@@ -3,14 +3,15 @@ import subprocess
 from pathlib import Path
 import math
 from collections import defaultdict
+
 #from decimal import Decimal
 
 def log2(n):
+    
     if n == 0: #the math.log2() method would raise a domain error
         return 0
     else:
         return math.log2(n)
-
 def calculate_entropy(kmers:list): #calculate entropy for each gene of each patient
     entropy = 0
     count = len(kmers)

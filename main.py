@@ -5,16 +5,28 @@ from pathlib import Path
 import random
 from processing_fasta import *
 from entropy_measures import *
-from plots import *
+#from plots import *
 from ml_ktss import *
 import argparse
 import itertools
 import numpy as np
 from pyranges.readers import read_gtf
 
+# The Command Line Interface:
+""" Example of usage:
+    To run the Entropy analysis:
+
+    python main.py --vcf my_snps.vcf --annot my_genes.txt entropy --kmer 5 --samples patient1,patient2
+
+    To run the KTSS analysis:
+
+    python main.py --vcf my_snps.vcf --annot my_genes.txt ktss --chromosome chr21
+"""
+# It is Mandatory to specify the VCF file and the annotation file. The user can choose to calculate entropy measures or to perform machine learning using automata.
 parser = argparse.ArgumentParser(prog='main.py')
 parser.add_argument('--vcf',help='Name of the VCF file',type=str,required=True)
 parser.add_argument('--annot','-a',help='Name of the annotation file',type=str,required=True)
+# Entropy measures
 subparser = parser.add_subparsers(dest='command')
 entropy = subparser.add_parser('entropy')
 entropy.add_argument('--kmer','-k',type=int,help='k-mer size',default=7)
@@ -22,11 +34,14 @@ entropy.add_argument('--window','-w',type=int,help='Window size',default=100)
 entropy.add_argument('--stats','-s',type=bool,help='Element statistics plot', default=False)
 entropy.add_argument('--chromosome','-c',type=str,help='Chromosome name, in the form chrXX')
 entropy.add_argument('--filtered','-f',type=bool,help='Whether the VCF file is filtered (synonymous variants out)',default=False)
-entropy.add_argument('--samples','-s',help='List of sample ids',required=True)
+entropy.add_argument('--samples','-sm',help='List of sample ids',required=True)
+# Automata
 ktss = subparser.add_parser('ktss')
 ktss.add_argument('--kmer','-k',type=int,help='k-mer size',default=10)
 ktss.add_argument('--chromosome','-c', type=str,help='Chromosome name, in the form chrXX')
+# Reading all the arguments from the command line 
 args = parser.parse_args()
+
 
 #the code supposes the presence of a folder 'data' where FASTAs, VCFs and the annotation are present
 cwd = Path(os.getcwd())

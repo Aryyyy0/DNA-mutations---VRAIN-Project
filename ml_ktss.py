@@ -20,6 +20,8 @@ class ktss_language():
         self.k = k
         self.I = set([R[i][:k-1] for i in range(len(R))]) #initial kmers
         self.F = set([R[i][len(R[i])-k+1:len(R[i])] for i in range(len(R))]) #terminal kmers
+        
+        
         self.all = all_k
         self.T = set(self.all.difference(get_kmers(R,k)))  #'prohibited' kmers
         
