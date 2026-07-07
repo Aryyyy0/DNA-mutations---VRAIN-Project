@@ -26,6 +26,7 @@ from pyranges.readers import read_gtf
 parser = argparse.ArgumentParser(prog='main.py')
 parser.add_argument('--vcf',help='Name of the VCF file',type=str,required=True)
 parser.add_argument('--annot','-a',help='Name of the annotation file',type=str,required=True)
+parser.add_argument('--samples','-sm',help='List of sample ids',type=str,required=True)
 # Entropy measures
 subparser = parser.add_subparsers(dest='command')
 entropy = subparser.add_parser('entropy')
@@ -162,7 +163,11 @@ if args.command == 'entropy':
             os.remove(file)
         
 
-#MACHINE LEARNING USING AUTOMATA 
+
+# Grammatical Inference of k-testable languages: (KTSS)
+# Needed folder structure:
+#          results/chrXX
+#          mutated/
 if args.command == 'ktss':
     k = args.kmer
     if args.chromosome:
@@ -174,14 +179,16 @@ if args.command == 'ktss':
 
     for i in range(len(chrom_list)): 
         chromosome = str(chrom_list[i].stem)
-        #[createFASTA(str(cwd)+'/data/'+args.vcf,str(chrom_list[i]),'mutated/'+chromosome,sample=sample_id) for sample_id in sample_list]
+        [createFASTA(str(cwd)+'/data/'+args.vcf,str(chrom_list[i]),'mutated/'+chromosome,sample=sample_id) for sample_id in sample_list]
         mut = list(cwd.glob('mutated/*.fasta'))
         annot_c = annot[annot['Chromosome']==chromosome]
         error = []
        
         for gene in range(20):
             p_set = None
-            p_set = [Fasta(str(mut[j])).dna[annot_c['Start'].iloc[gene]:annot_c['End'].iloc[gene]] for j in range(len(mut))] #get DNA sequences from gene coordinates
+            #get DNA sequences from gene coordinates 
+            # replacing Y with C and N with A to avoid problems with the automata inference
+            p_set = [Fasta(str(mut[j])).dna[annot_c['Start'].iloc[gene]:annot_c['End'].iloc[gene]].upper().replace('Y', 'C').replace('N', 'A') for j in range(len(mut))]
             #print(p_set)
             n_set = None
             print(annot_c['gene_id'].iloc[gene])
@@ -200,3 +207,7 @@ if args.command == 'ktss':
         pandas.DataFrame(error,index=annot_c['gene_id'][:20]).to_csv('results/'+chromosome+'/error_ktss'+chromosome+'_k'+str(k)+'.txt',sep='\t')
 
 print('Done')
+
+""" 
+   python main.py --vcf your_file.vcf --annot your_genes.txt --chromosome chr21 ktss --kmer 3
+"""
