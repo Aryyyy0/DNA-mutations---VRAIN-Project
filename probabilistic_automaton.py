@@ -62,7 +62,14 @@ def get_kmers(seqs,k):
 # '/data/gencode.v49lift37.basic.annotation_protein_coding.gtf'
 
 def automata_builder(gtf_file_path: str, chromosome: str, gene_number: int):
-    
+    """
+        parameters:
+            gtf_file_path: path to the gtf file containing the gene annotations
+            chromosome: chromosome number to filter the gtf file
+            gene_number: index of the gene to build the automata for    
+        returns:
+            automata: a probabilistic deterministic finite automaton (PDFA) built from the sequences of the specified gene
+    """
     cwd = Path(os.getcwd())
     gtf = read_gtf(str(cwd)+gtf_file_path,as_df = True)
     gtf = gtf[gtf['Chromosome']==chromosome]
