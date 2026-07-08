@@ -2,7 +2,7 @@ import itertools
 from pyranges.readers import read_gtf
 from processing_fasta import *
 from collections import defaultdict
-import pandas
+import pandas as pd
 import math
 
 """
@@ -52,22 +52,23 @@ def get_kmers(seqs,k):
     return set(kmers)
 
 """
-        Building 20 automata for 20 genes on the 22nd chromosome, 
-        and testing them on the corresponding sequences of the first fasta file in the mutated folder.
-        Output is a dataframe with the gene ids as index and the acceptance status and score for each gene.
+       - Building 20 automata for 20 genes on the 22nd chromosome, 
+         and testing them on the corresponding sequences of the first fasta file in the mutated folder.
+       - Output is a dataframe with the gene ids as index and the acceptance status and score for each gene.
+       - the closest the score is to 0, the more likely the sequence is to be accepted by the automata.
  
 """
-cwd = Path(os.getcwd())
-gtf = read_gtf(str(cwd)+'/data/gencode.v49lift37.basic.annotation_protein_coding.gtf',as_df = True)
-chromosome = 'chr22'
-gtf = gtf[gtf['Chromosome']==chromosome]
-mut = list(cwd.glob('mutated/*.fasta'))
 
-output = []
+# '/data/gencode.v49lift37.basic.annotation_protein_coding.gtf'
 
-for gene in range(20):
-
-    R = [Fasta(str(mut[j])).dna[gtf['Start'].iloc[gene]:gtf['End'].iloc[gene]] for j in range(1,len(mut))] # Training Data Preparation 
+def automata_builder(gtf_file_path: str, chromosome: str, gene_number: int):
+    
+    cwd = Path(os.getcwd())
+    gtf = read_gtf(str(cwd)+gtf_file_path,as_df = True)
+    gtf = gtf[gtf['Chromosome']==chromosome]
+    mut = list(cwd.glob('mutated/*.fasta'))
+    
+    R = [Fasta(str(mut[j])).dna[gtf['Start'].iloc[gene_number]:gtf['End'].iloc[gene_number]] for j in range(1,len(mut))] # Training Data Preparation 
     k = 10
     all_k = all_kmers(itertools.product('ACGT',repeat=k))
     #sigma = ['A','C','T','G']
@@ -124,8 +125,30 @@ for gene in range(20):
 
     #print(delta[list(delta.keys())[1]])
     automata = pdfa(Q,delta,Q_f,start)
+    
+    return automata
 
-    test = Fasta(str(mut[0])).dna[gtf['Start'].iloc[gene]:gtf['End'].iloc[gene]]
-    output.append(automata.accepts(test))
+def automata_tester(automata,gtf_file_path: str , chromosome: str, gene_number: int):
 
-print(pandas.DataFrame(output,index=gtf['gene_id'][:20]))
+    cwd = Path(os.getcwd())
+    gtf = read_gtf(str(cwd)+gtf_file_path,as_df = True)
+    gtf = gtf[gtf['Chromosome']==chromosome]
+    mut = list(cwd.glob('mutated/*.fasta'))
+    
+    test = Fasta(str(mut[0])).dna[gtf['Start'].iloc[gene_number]:gtf['End'].iloc[gene_number]]
+    
+    return automata.accepts(test)
+
+#-------------------------------------------- TESTING THE AUTOMATA BUILDER AND TESTER FUNCTIONS --------------------------------------------
+gtf_file_path = '/data/gencode.v49lift37.basic.annotation_protein_coding.gtf'
+output = []
+for gene_i in range(20):
+    automata_i = automata_builder(gtf_file_path,'chr22',gene_i)
+    test_i = automata_tester(automata_i,gtf_file_path,'chr22', gene_i)
+    output.append(test_i)
+
+# Pandas DataFrame to display the results :  gene_id |acceptance status | acceptance score
+cwd = Path(os.getcwd())
+gtf = read_gtf(str(cwd)+'/data/gencode.v49lift37.basic.annotation_protein_coding.gtf',as_df = True)
+gtf = gtf[gtf['Chromosome']=='chr22']
+print(pd.DataFrame(output,index=gtf['gene_id'][:20]))
