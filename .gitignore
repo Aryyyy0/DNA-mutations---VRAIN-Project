@@ -1,6 +1,8 @@
 .venv/
 __pycache__/
-
+data/
 GenomicData/
 *.vcf
 *.gz
+mutated/
+results/

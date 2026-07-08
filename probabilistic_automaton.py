@@ -1,10 +1,10 @@
-##PROBABILISTIC AUTOMATA FOR GENOMIC ANALYSIS, this is just a test
-import probabilistic_automata as pa 
 import itertools
 from pyranges.readers import read_gtf
 from processing_fasta import *
 from collections import defaultdict
 import pandas
+import math
+
 
 class pdfa():
     def __init__(self,states,transitions,final,initial):
@@ -12,22 +12,24 @@ class pdfa():
         self.transitions = transitions #in the form {q1 : {char : (q2,prob)}}
         self.final = final
         self.initial = initial 
-
+        
+    # parsing a sequence through the automata, 
+    #      if the sequence is accepted, return True and the probability of acceptance, 
+    #      else return False and the probability of rejection
     def accepts(self,seq):
-        current = self.transitions[self.initial][seq[0]][0]
-        prob = self.transitions[self.initial][seq[0]][1]
+        current = self.transitions[self.initial][seq[0]][0] # the state we transition to from the initial state with the first character of the sequence
+        prob = self.transitions[self.initial][seq[0]][1] # the probability of transitioning from the initial state to the current state with the first character of the sequence
         for i in range(1,len(seq)):
-            if seq[i] not in self.transitions[current].keys():
-                return (False,0)
+            if seq[i] not in self.transitions[current].keys():  #rejection with -inf probability
+                return (False,float('-inf'))
 
-            prob = prob * self.transitions[current][seq[i]][1]
+            # update the probability of acceptance by summing on logarithms of the probabilities of the transitions
+            prob = prob + math.log(self.transitions[current][seq[i]][1] )
             current = self.transitions[current][seq[i]][0]
             
-        
+        # if we finish parsing the sequence and we are in a final state, return True and the probability of acceptance
         if current in self.final:
-            if prob >= 0.8:
-                return (True,prob)
-            return (False,prob)
+            return (True,prob)
 
         return (False,prob)
 
