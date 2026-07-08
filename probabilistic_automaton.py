@@ -5,6 +5,12 @@ from collections import defaultdict
 import pandas
 import math
 
+"""
+This file contains the implementation of a probabilistic deterministic finite automaton (PDFA) and 
+its application to parse sequences of nucleotides. The PDFA is defined by its states, transitions, final states, and initial state. 
+The transitions are represented as a dictionary where each state maps to another dictionary of characters and their corresponding next state and transition probability.
+"""
+
 
 class pdfa():
     def __init__(self,states,transitions,final,initial):
@@ -13,10 +19,13 @@ class pdfa():
         self.final = final
         self.initial = initial 
         
-    # parsing a sequence through the automata, 
-    #      if the sequence is accepted, return True and the probability of acceptance, 
-    #      else return False and the probability of rejection
+  
     def accepts(self,seq):
+        """ 
+        function parsing a sequence through the automata, 
+                 if the sequence is accepted, return True and the score of acceptance, 
+                 else return False and the score of rejection (sum of log(probabilities of the transitions))
+        """
         current = self.transitions[self.initial][seq[0]][0] # the state we transition to from the initial state with the first character of the sequence
         prob = self.transitions[self.initial][seq[0]][1] # the probability of transitioning from the initial state to the current state with the first character of the sequence
         for i in range(1,len(seq)):
@@ -42,6 +51,12 @@ def get_kmers(seqs,k):
         kmers.update([seqs[i][j:j+k] for j in range(len(seqs[i])-k+1)])
     return set(kmers)
 
+"""
+        Building 20 automata for 20 genes on the 22nd chromosome, 
+        and testing them on the corresponding sequences of the first fasta file in the mutated folder.
+        Output is a dataframe with the gene ids as index and the acceptance status and score for each gene.
+ 
+"""
 cwd = Path(os.getcwd())
 gtf = read_gtf(str(cwd)+'/data/gencode.v49lift37.basic.annotation_protein_coding.gtf',as_df = True)
 chromosome = 'chr22'
@@ -52,7 +67,7 @@ output = []
 
 for gene in range(20):
 
-    R = [Fasta(str(mut[j])).dna[gtf['Start'].iloc[gene]:gtf['End'].iloc[gene]] for j in range(1,len(mut))]
+    R = [Fasta(str(mut[j])).dna[gtf['Start'].iloc[gene]:gtf['End'].iloc[gene]] for j in range(1,len(mut))] # Training Data Preparation 
     k = 10
     all_k = all_kmers(itertools.product('ACGT',repeat=k))
     #sigma = ['A','C','T','G']
