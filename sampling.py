@@ -36,23 +36,27 @@ class mutated_sample:
         current = self.automata.initial
         sequence = ''
         while current not in self.automata.final:
-            next_symbol = choose_random_transition(self.automata.transitions[current])
+            next_symbol, next_state = choose_random_transition(self.automata.transitions[current])
             sequence += next_symbol
-            current = self.automata.transitions[current][next_symbol][0]
+            #print(sequence)
+            current = next_state
         self.sequence = sequence
+        print("The generated sequence is : ", self.sequence)
 
 def choose_random_transition(possible_transitions: dict):
     """
-    automata.transitions[q] is the dictionary of possible transitions.
+    automata.transitions[q] is the dictionary of possible transitions : {char : (q2,prob)}
     
     """
     r = random.random() # Tosses a coin between 0.0 and 1.0
     cumulative_prob = 0.0
     
-    for symbol, prob in possible_transitions.items():
-        cumulative_prob += prob
+    for symbol, (next_state, transition_prob) in possible_transitions.items():
+        cumulative_prob += transition_prob
         if r < cumulative_prob:
-            return symbol   
+            return symbol, next_state
+    
+        
     
 
         

@@ -25,6 +25,7 @@ class pdfa():
         function parsing a sequence through the automata, 
                  if the sequence is accepted, return True and the score of acceptance, 
                  else return False and the score of rejection (sum of log(probabilities of the transitions))
+                 
         """
         current = self.transitions[self.initial][seq[0]][0] # the state we transition to from the initial state with the first character of the sequence
         prob = self.transitions[self.initial][seq[0]][1] # the probability of transitioning from the initial state to the current state with the first character of the sequence
@@ -147,15 +148,16 @@ def automata_tester(automata,gtf_file_path: str , chromosome: str, gene_number: 
     return automata.accepts(test)
 
 #-------------------------------------------- TESTING THE AUTOMATA BUILDER AND TESTER FUNCTIONS --------------------------------------------
-gtf_file_path = '/data/gencode.v49lift37.basic.annotation_protein_coding.gtf'
-output = []
-for gene_i in range(20):
-    automata_i = automata_builder(gtf_file_path,'chr22',gene_i)
-    test_i = automata_tester(automata_i,gtf_file_path,'chr22', gene_i)
-    output.append(test_i)
+if __name__ == '__main__':
+    gtf_file_path = '/data/gencode.v49lift37.basic.annotation_protein_coding.gtf'
+    output = []
+    for gene_i in range(20):
+        automata_i = automata_builder(gtf_file_path,'chr22',gene_i)
+        test_i = automata_tester(automata_i,gtf_file_path,'chr22', gene_i)
+        output.append(test_i)
 
-# Pandas DataFrame to display the results :  gene_id |acceptance status | acceptance score
-cwd = Path(os.getcwd())
-gtf = read_gtf(str(cwd)+'/data/gencode.v49lift37.basic.annotation_protein_coding.gtf',as_df = True)
-gtf = gtf[gtf['Chromosome']=='chr22']
-print(pd.DataFrame(output,index=gtf['gene_id'][:20]))
+    # Pandas DataFrame to display the results :  gene_id |acceptance status | acceptance score
+    cwd = Path(os.getcwd())
+    gtf = read_gtf(str(cwd)+'/data/gencode.v49lift37.basic.annotation_protein_coding.gtf',as_df = True)
+    gtf = gtf[gtf['Chromosome']=='chr22']
+    print(pd.DataFrame(output,index=gtf['gene_id'][:20]))
