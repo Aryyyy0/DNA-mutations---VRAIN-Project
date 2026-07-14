@@ -6,3 +6,4 @@ GenomicData/
 *.gz
 mutated/
 results/
+generated_sequences/
