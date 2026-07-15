@@ -41,7 +41,7 @@ class mutated_sample:
             #print(sequence)
             current = next_state
         self.sequence = sequence
-        print("The generated sequence is : ", self.sequence)
+        #print("The generated sequence is : ", self.sequence)
 
 def choose_random_transition(possible_transitions: dict):
     """

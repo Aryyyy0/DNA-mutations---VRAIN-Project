@@ -7,3 +7,4 @@ GenomicData/
 mutated/
 results/
 generated_sequences/
+*.csv

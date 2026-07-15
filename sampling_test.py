@@ -50,7 +50,6 @@ print("The generated sequences are : ", pd.DataFrame.generated_sequences) """
 #
 #-----------------------Generating 100 sequences for each location on each chromosome and saving them in a database --------
 
-os.makedirs("newly_generated_sequences", exist_ok=True)
 
 database_rows = [] #CSV file 
 chr_list = ['chr22'] # for the moment running only on chr22, but we can run it on all chromosomes later
