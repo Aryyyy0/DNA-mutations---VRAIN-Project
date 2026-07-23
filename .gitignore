@@ -8,3 +8,4 @@ mutated/
 results/
 generated_sequences/
 *.csv
+focused_sampling/
