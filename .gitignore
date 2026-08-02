@@ -4,9 +4,12 @@ data/
 GenomicData/
 *.vcf
 *.gz
+
 mutated/
 results/
 generated_sequences/
+
 *.csv
+
 focused_sampling/
 focused_sampling_length_control/

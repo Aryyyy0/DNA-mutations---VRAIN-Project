@@ -45,45 +45,22 @@ class mutated_sample:
         
    def generate_mutated_sample_length_control(self, target_length):
         """
-        Method filling the sequence field of the mutated sample instance.
-        Generates a sequence using the sample.automata (trained DPFA)
-        The length of the sequence is controlled by the parameter target_length.
+        Generates a sequence of exactly 'target_length' using the trained DPFA.
         """
         counter = 0
         status = True
         current = self.automata.initial
         sequence = ''
         
-        while current not in self.automata.final and status:
-            possible_transitions = self.automata.transitions[current] 
+        while counter < target_length and status:
+            possible_transitions = self.automata.transitions.get(current, {}) 
             
-            # If we reach the length limit, force the automaton to a final state
-            if counter == target_length - 1:
-                
-                final_possible_transitions = {}
-                sum_remaining_probs = 0.0
-                
-                # Filter transitions that strictly lead to a final state
-                for symbol, (next_state, transition_prob) in possible_transitions.items():
-                    if next_state in self.automata.final:
-                        final_possible_transitions[symbol] = (next_state, transition_prob)
-                        sum_remaining_probs += transition_prob
-                
-                if len(final_possible_transitions) == 0:
-                    # No transition leads to a final state. The sample fails.
-                    status = False 
-                    break # Exit the while loop immediately
-                else:
-                    #  Re-normalize the probabilities so they sum to 1.0 again
-                    normalized_transitions = {}
-                    for symbol, (next_state, transition_prob) in final_possible_transitions.items():
-                        new_prob = transition_prob / sum_remaining_probs
-                        normalized_transitions[symbol] = (next_state, new_prob)
-                        
-                    # Replace possible transitions with our forced, normalized ones
-                    possible_transitions = normalized_transitions  
-                  
-            # Use standard RandomQ extraction 
+            # SAFETY CHECK: If the automaton hits a dead-end (leaf) before 1000
+            if not possible_transitions:
+                status = False
+                break
+              
+            # Use standard RandomQ extraction naturally
             next_symbol, next_state = choose_random_transition(possible_transitions)
             
             sequence += next_symbol
