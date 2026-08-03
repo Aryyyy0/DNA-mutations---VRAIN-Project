@@ -56,7 +56,7 @@ class entropy_vector:
             list_kmers = get_kmers(wind_i, k)
             # Calls the entropy_measures  --- calculate_entropy(kmers:list) ----  to compute the entropy 
             # calculate_entropy returns a float value representing the entropy of the list of k-mers
-            self.entropies.append(entropy_measures.calculate_entropy(list_kmers)) 
+            self.entropies.append(entropy_measures.calculate_entropy_float(list_kmers)) 
         
         
     

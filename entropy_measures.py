@@ -22,7 +22,7 @@ def calculate_entropy(kmers:list): #calculate entropy for each gene of each pati
         entropy -= (dict_freq[freq]/count)*log2(dict_freq[freq]/count)
     return entropy
 
-def calculate_entropy(kmers:list): 
+def calculate_entropy_float(kmers:list): 
     """  Float version of the entropy calculation method. Used in the entropy_vector class to compute the entropy of a list of k-mers."""
     entropy = 0.0
     count = len(kmers)
