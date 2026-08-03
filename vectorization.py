@@ -9,6 +9,8 @@
     tested in the sampling_seq.ipnyb file
       
 """
+from curses import window
+
 
 import sampling
 import math
@@ -38,21 +40,23 @@ class entropy_vector:
             window_length: length of the window to chunk the sample into
             k: length of the k-mers to extract from each window
         Returns:  
-            vector of entropy measures for the sample.
+            vector of entropy measures for the sample. -> one entropy measure per window
+            vector will be found in the entropies attribute of the class instance.
             
-        Note the windows are non-overlapping
+        Note the windows are non-overlapping 
+        
         """
-        # Chunks the sample into windows of length window_length and computes the entropy for each window.
+        #Chunks the sample into wind of length window_length and computes the entropy for each window.
+        
         for i in range(0,1000, window_length):
-            seq_i = self.sample.sequence[i:i+window_length]
-            if len(seq_i) < window_length:
+            wind_i = self.sample.sequence[i:i+window_length] 
+            if len(wind_i) < window_length:
                 break
-            # Exttracts the kmers of length k from each window --> [list of k-mers] 
-            list_kmers = get_kmers(seq_i, k)
+            # Exttracts the kmers of length k for the window --> [list of k-mers] 
+            list_kmers = get_kmers(wind_i, k)
             # Calls the entropy_measures  --- calculate_entropy(kmers:list) ----  to compute the entropy 
-            v = []
-            v.append(entropy_measures.calculate_entropy(list_kmers))
-            self.entropies.append(v)
+            # calculate_entropy returns a float value representing the entropy of the list of k-mers
+            self.entropies.append(entropy_measures.calculate_entropy(list_kmers)) 
         
         
     

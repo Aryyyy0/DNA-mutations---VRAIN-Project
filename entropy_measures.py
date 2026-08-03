@@ -22,6 +22,22 @@ def calculate_entropy(kmers:list): #calculate entropy for each gene of each pati
         entropy -= (dict_freq[freq]/count)*log2(dict_freq[freq]/count)
     return entropy
 
+def calculate_entropy(kmers:list): 
+    """  Float version of the entropy calculation method. Used in the entropy_vector class to compute the entropy of a list of k-mers."""
+    entropy = 0.0
+    count = len(kmers)
+    dict_freq = defaultdict(int) 
+    
+    for k in kmers:
+        dict_freq[k] += 1
+        
+    for freq in dict_freq.keys():
+        # FORCE FLOAT DIVISION HERE:
+        probability = float(dict_freq[freq]) / count
+        entropy -= probability * log2(probability)
+        
+    return entropy 
+
 def calculate_entropy_gene(kmers_sample:dict): #calculate entropy for each gene of each patient
     #print('Calculating gene entropy')
     dict_entropy = dict()
