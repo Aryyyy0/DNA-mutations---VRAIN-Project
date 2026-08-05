@@ -10,8 +10,6 @@
       
 """
 from curses import window
-
-
 import sampling
 import math
 import entropy_measures
