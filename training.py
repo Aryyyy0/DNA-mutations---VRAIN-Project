@@ -14,6 +14,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 import probabilistic_automaton as pa
+import torch.nn as nn
 
 class DNAEntropyDataset(Dataset):
     def __init__(self, entropy_instances, threshold=-150.0):
@@ -49,3 +50,68 @@ class DNAEntropyDataset(Dataset):
         x = torch.tensor(self.vectors[idx]).unsqueeze(0)
         y = torch.tensor(self.labels[idx])
         return x, y
+    
+"""
+Simple CNN for DNA Entropy Classification
+ 1-Stage convolutional block
+ 
+"""
+  
+class DNAEntropyCNN_Simple(nn.Module):
+    def __init__(self, num_classes=2):
+        super(DNAEntropyCNN_Simple, self).__init__()
+        
+        # Calling  Conv1d with in_channels=1 because the input is a single-channel 1D vector (the entropy vector)
+        # the output channels are set to 8, meaning we will learn 8 different filters
+        self.conv = nn.Conv1d(in_channels=1, out_channels=8, kernel_size=3, padding=1)
+        self.relu = nn.ReLU()
+        self.pool = nn.AdaptiveAvgPool1d(1) # length reduction to 1, effectively summarizing the features across the sequence length
+        
+        # Output projection layer to categorical logits
+        self.classifier = nn.Linear(in_features=8, out_features=2)
+
+    def forward(self, x):
+        # x has the format (Batch, 1, Longueur_sequence)
+        
+        x = self.conv(x)  
+        x = self.relu(x)  
+        x = self.pool(x)  
+        
+        x = x.squeeze(-1) 
+        
+        logits = self.classifier(x) # -> (Batch, 2)
+        return logits
+
+
+"""
+CNN for DNA Entropy Classification
+ 3-Stage convolutional blocks: Conv1d -> Non-linearity -> Pooling
+
+
+
+class DNAEntropyCNN(nn.Module):
+    def __init__(self, num_classes=2):
+        super(DNAEntropyCNN, self).__init__()
+        
+       
+        self.feature_extractor = nn.Sequential(
+            #  Sparse local interactions (kernel_size=3)
+            nn.Conv1d(in_channels=1, out_channels=16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2), # Reduces spatial footprint by half
+            
+            # Higher-level hierarchical combinations
+            nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool1d(1) # Collapses the sequence axis to size 1
+        )
+        
+        # Output projection layer to categorical logits
+        self.classifier = nn.Linear(in_features=32, out_features=num_classes)
+
+    def forward(self, x):
+        features = self.feature_extractor(x)
+        features = features.squeeze(-1) # Reshape from (Batch, 32, 1) to (Batch, 32)
+        logits = self.classifier(features)
+        return logits
+        """
