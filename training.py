@@ -77,7 +77,7 @@ class DNAEntropyCNN_Simple(nn.Module):
         x = self.relu(x)  
         x = self.pool(x)  
         
-        x = x.squeeze(-1) 
+        x = x.squeeze(-1) # adapting the shape from (Batch, 8, 1) to (Batch, 8) for the linear layer
         
         logits = self.classifier(x) # -> (Batch, 2)
         return logits
