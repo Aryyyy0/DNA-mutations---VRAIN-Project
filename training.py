@@ -13,6 +13,7 @@ Input Topology:
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
+import probabilistic_automaton as pa
 
 class DNAEntropyDataset(Dataset):
     def __init__(self, entropy_instances, threshold=-150.0):
@@ -31,7 +32,8 @@ class DNAEntropyDataset(Dataset):
             self.vectors.append(inst.entropies)
             
             # Labelization: Evaluate the log-acceptance likelihood score against theta
-            score = inst.sample.log_acceptance_score
+            c = inst.sample.automata.accepts(inst.sample.sequence)
+            score = c[1]
             label = 1 if score >= threshold else 0
             self.labels.append(label)           
         # Convert arrays to PyTorch-compatible float32 and int64 formats
