@@ -87,31 +87,6 @@ class DNAEntropyCNN_Simple(nn.Module):
 CNN for DNA Entropy Classification
  3-Stage convolutional blocks: Conv1d -> Non-linearity -> Pooling
 
+coming soon ...
 
-
-class DNAEntropyCNN(nn.Module):
-    def __init__(self, num_classes=2):
-        super(DNAEntropyCNN, self).__init__()
-        
-       
-        self.feature_extractor = nn.Sequential(
-            #  Sparse local interactions (kernel_size=3)
-            nn.Conv1d(in_channels=1, out_channels=16, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2), # Reduces spatial footprint by half
-            
-            # Higher-level hierarchical combinations
-            nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool1d(1) # Collapses the sequence axis to size 1
-        )
-        
-        # Output projection layer to categorical logits
-        self.classifier = nn.Linear(in_features=32, out_features=num_classes)
-
-    def forward(self, x):
-        features = self.feature_extractor(x)
-        features = features.squeeze(-1) # Reshape from (Batch, 32, 1) to (Batch, 32)
-        logits = self.classifier(features)
-        return logits
-        """
+""" 
