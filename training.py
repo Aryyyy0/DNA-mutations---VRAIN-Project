@@ -65,7 +65,8 @@ class DNAEntropyCNN_Simple(nn.Module):
         # the output channels are set to 8, meaning we will learn 8 different filters
         self.conv = nn.Conv1d(in_channels=1, out_channels=8, kernel_size=3, padding=1)
         self.relu = nn.ReLU()
-        self.pool = nn.AdaptiveAvgPool1d(1) # length reduction to 1, effectively summarizing the features across the sequence length
+        self.pool = nn.AdaptiveMaxPool1d(1)
+        # self.pool = nn.AdaptiveAvgPool1d(1) # length reduction to 1, effectively summarizing the features across the sequence length
         
         # Output projection layer to categorical logits
         self.classifier = nn.Linear(in_features=8, out_features=2)
@@ -90,3 +91,42 @@ CNN for DNA Entropy Classification
 coming soon ...
 
 """ 
+
+class DNAEntropyCNN_Complex(nn.Module):
+    def __init__(self, num_classes=2):
+        super(DNAEntropyCNN_Complex, self).__init__()
+        
+        # Étage 1 : Extraction locale (1 canal -> 16 cartes)
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=16, kernel_size=3, padding=1)
+        self.relu1 = nn.ReLU()
+        
+        # Étage 2 : Combinaison hiérarchique (16 -> 32 cartes)
+        self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, padding=1)
+        self.relu2 = nn.ReLU()
+        
+        # Étage 3 : Abstraction profonde (32 -> 64 cartes)
+        self.conv3 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size=3, padding=1)
+        self.relu3 = nn.ReLU()
+        
+        # Pooling global adaptatif pour figer la sortie spatiale à 1
+        #self.pool = nn.AdaptiveAvgPool1d(1)
+        self.pool = nn.AdaptiveMaxPool1d(1)
+        
+        # Classifieur dense projetant les 64 features globales
+        self.classifier = nn.Linear(in_features=64, out_features=num_classes)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.relu1(x)
+        
+        x = self.conv2(x)
+        x = self.relu2(x)
+        
+        x = self.conv3(x)
+        x = self.relu3(x)
+        
+        x = self.pool(x)
+        x = x.squeeze(-1)
+        
+        logits = self.classifier(x)
+        return logits
